@@ -1,5 +1,6 @@
 'use strict';
 
+var idName;
 
 function buildDom(html) {
   var div = document.createElement('div');
@@ -13,22 +14,37 @@ function main() {
   var gameOverMain;
 
   var game; // instance of Game
+  
 
   // -- splash
 
-  function buildSplash() {
+ function buildSplash() {
 
     splashMain = buildDom(`
       <main>
         <h1>Eternal Enemies</h1>
+        <div>
+          <label>Username:</label>
+          <input type="text" placeholder="Who do you hate most"></input>
+        </div>
         <button>Start</button>
       </main>
     `);
     
     document.body.appendChild(splashMain);
 
+    var input = document.querySelector('input');
+
+    input.addEventListener('keyup', function (){
+        idName = username(input);
+    })
+    function username (item) {
+      return item.value;
+    };
+
     var button = splashMain.querySelector('button');
     button.addEventListener('click', startGame);
+
   }
 
   function destoySplash() {
@@ -45,7 +61,7 @@ function main() {
     game = new Game();
     game.start();
     game.onOver(function () {
-      gameOver(game.score);
+      gameOver(game.score, game.username);
     });
   }
 
@@ -56,17 +72,17 @@ function main() {
   // -- game over 
 
 
-  function gameOver(score) {
+  function gameOver(score, username) {
     destroyGame();
-    buildGameOver(score);
+    buildGameOver(score, username);
   }
 
-  function buildGameOver(score) {
+  function buildGameOver(score, username) {
 
     gameOverMain = buildDom(`
       <main>
         <h1>Game over</h1>
-        <p>Your score: <span></span></p>
+        <p><span></span></p>
         <button>Restart</button>
       </main>
     `);
@@ -75,7 +91,7 @@ function main() {
     button.addEventListener('click', startGame);    
     
     var span = gameOverMain.querySelector('span');
-    span.innerText = score;
+    span.innerText = username+' your score is: ' + score + ' !!!!';
 
     document.body.appendChild(gameOverMain);
   }
