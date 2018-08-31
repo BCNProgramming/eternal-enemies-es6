@@ -62,7 +62,6 @@ Game.prototype.start = function () {
   };
 
   document.body.addEventListener('keydown', self.handleHeyDown)
-  document.body.addEventListener('keydown', self.handleKeySpace)
 
 
 
@@ -75,76 +74,79 @@ Game.prototype.start = function () {
 
 };
 
+
 Game.prototype.startLoop = function () {
   self = this;
-  if (!self.pause) {
+  var ctx = self.canvasElement.getContext('2d');
 
-    var ctx = self.canvasElement.getContext('2d');
-    function loop(){
-  
-      if (Math.random() > 0.95){
-        var y = self.canvasElement.height * Math.random();
-        self.enemies.push(new Enemy(self.canvasElement, y , 5));
-      }
-  
-      if (Math.random() > 0.99){
-        var y = self.canvasElement.height * Math.random();
-        self.points.push(new Points(self.canvasElement, y , 5));
-      }
-  
-  
-      // UPDATE
-  
-  
-      self.player.update();
-  
-      self.enemies.forEach(function(item) {
-        item.update();
-      });
-  
-      self.points.forEach(function(item) {
-        item.update();
-      });
-  
-      self.enemies = self.enemies.filter(function (item){
-        return item.isInScreen();
-      });
-  
-      self.checkIfEnemiesCollidePlayer();
-      self.checkIfPointsCollidePlayer();
-  
-      self.livesElement.innerText = self.player.lives
-      self.scoreElement.innerText = self.score;
-  
-      ctx.clearRect(0, 0, self.width, self.height) 
-  
-  
-      // DRAW
-  
-  
-      self.enemies.forEach(function(item) {
-        item.draw()
-      });
-  
-      self.points.forEach(function(item) {
-        item.draw()
-      });
-  
-      self.player.draw();
-      
-      if(!self.gameIsOver){
-        window.requestAnimationFrame(loop);
-      }
-    };
-    window.requestAnimationFrame(loop);
-  }
+  document.body.addEventListener('keyup', function(){
+    if (event.key === ' ') {
+      self.pause = !self.pause;
+      if (!self.pause) {
+          loop();
+      };
+    }
+  });
+
+  function loop(){
+
+    if (Math.random() > 0.95){
+      var y = self.canvasElement.height * Math.random();
+      self.enemies.push(new Enemy(self.canvasElement, y , 5));
+    }
+
+    if (Math.random() > 0.99){
+      var y = self.canvasElement.height * Math.random();
+      self.points.push(new Points(self.canvasElement, y , 5));
+    }
+
+
+    // UPDATE
+
+
+    self.player.update();
+
+    self.enemies.forEach(function(item) {
+      item.update();
+    });
+
+    self.points.forEach(function(item) {
+      item.update();
+    });
+
+    self.enemies = self.enemies.filter(function (item){
+      return item.isInScreen();
+    });
+
+    self.checkIfEnemiesCollidePlayer();
+    self.checkIfPointsCollidePlayer();
+
+    self.livesElement.innerText = self.player.lives
+    self.scoreElement.innerText = self.score;
+
+    ctx.clearRect(0, 0, self.width, self.height) 
+
+
+    // DRAW
+
+
+    self.enemies.forEach(function(item) {
+      item.draw()
+    });
+
+    self.points.forEach(function(item) {
+      item.draw()
+    });
+
+    self.player.draw();
+    
+    if(!self.gameIsOver && !self.pause) {
+      window.requestAnimationFrame(loop);
+    }
+  };
+  window.requestAnimationFrame(loop);
 };
 
-Game.prototype.handleKeySpace = function (event) {
-  if (event.key === ' ') {
-    self.togglePause();
-  }
-};
 
 Game.prototype.togglePause = function () {
   var self = this;
