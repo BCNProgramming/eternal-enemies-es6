@@ -28,7 +28,7 @@ Game.prototype.start = function () {
         </div>
       </header>
       <div class="canvas">
-      <canvas></canvas>
+        <canvas></canvas>
       </div>
       <div>
         <audio id='song' preload="auto" loop
