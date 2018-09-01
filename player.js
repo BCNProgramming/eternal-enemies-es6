@@ -16,8 +16,12 @@ function Player(canvas, lives) {
 
 Player.prototype.collided = function () {
   var self= this;
-
   self.lives--;
+}
+
+Player.prototype.collidedLive = function () {
+  var self= this;
+  self.lives++;
 }
 
 Player.prototype.collidesWithEnemy = function (enemy) {

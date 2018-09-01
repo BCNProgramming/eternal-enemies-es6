@@ -28,14 +28,25 @@ Game.prototype.start = function () {
         </div>
       </header>
       <div class="canvas">
-        <canvas></canvas>
+      <canvas></canvas>
       </div>
-    </main>
+      <div>
+        <audio id='song' preload="auto" loop
+        src="./audio/Stage 1 Castlevania (NES) Music.mp3" type="audio/ogg">
+        </audio>
+        <div>
+          <button onclick="document.getElementById('song').play()">Play</button>
+          <button onclick="document.getElementById('song').pause()">Pause</button>
+        </div>
+      </div>
+      </main>
   `);
 
   self.gameMain.querySelector('p').innerText = self.username;
   self.canvasParentElement = self.gameMain.querySelector('.canvas');
   self.canvasElement = self.gameMain.querySelector('canvas');
+  self.music = self.gameMain.querySelector('audio');
+  self.music.autoplay = true;
 
   self.livesElement = self.gameMain.querySelector('.lives .value');
   self.scoreElement = self.gameMain.querySelector('.score .value');
@@ -50,7 +61,6 @@ Game.prototype.start = function () {
 
 
   self.player = new Player(self.canvasElement, 5);
-  // self.player.lives = 3;
 
 
   self.handleHeyDown = function (event) {
@@ -67,6 +77,7 @@ Game.prototype.start = function () {
 
   self.enemies = [];
   self.points = [];
+  self.lives = [];
 
   self.startLoop();
 
@@ -84,6 +95,10 @@ Game.prototype.startLoop = function () {
       self.pause = !self.pause;
       if (!self.pause) {
           loop();
+          self.music.play();
+      }
+      if (self.pause) {
+        self.music.pause();
       };
     }
   });
@@ -100,6 +115,11 @@ Game.prototype.startLoop = function () {
       self.points.push(new Points(self.canvasElement, y , 5));
     }
 
+    if (Math.random() > 0.995){
+      var y = self.canvasElement.height * Math.random();
+      self.lives.push(new Live(self.canvasElement, y , 8));
+    }
+
 
     // UPDATE
 
@@ -114,12 +134,17 @@ Game.prototype.startLoop = function () {
       item.update();
     });
 
+    self.lives.forEach(function(item) {
+      item.update();
+    });
+
     self.enemies = self.enemies.filter(function (item){
       return item.isInScreen();
     });
 
     self.checkIfEnemiesCollidePlayer();
     self.checkIfPointsCollidePlayer();
+    self.checkIfLivesCollidePlayer();
 
     self.livesElement.innerText = self.player.lives
     self.scoreElement.innerText = self.score;
@@ -138,6 +163,10 @@ Game.prototype.startLoop = function () {
       item.draw()
     });
 
+    self.lives.forEach(function(item) {
+      item.draw()
+    });
+
     self.player.draw();
     
     if(!self.gameIsOver && !self.pause) {
@@ -148,14 +177,6 @@ Game.prototype.startLoop = function () {
 };
 
 
-Game.prototype.togglePause = function () {
-  var self = this;
-  if (!self.pause) {
-        self.pause = true;
-  } else {
-       self.pause = false;
-  };
-}
 
 Game.prototype.checkIfEnemiesCollidePlayer = function () {
   var self = this;
@@ -181,13 +202,23 @@ Game.prototype.checkIfPointsCollidePlayer = function () {
   });
 };
 
+Game.prototype.checkIfLivesCollidePlayer = function () {
+  var self = this;
+  self.lives.forEach( function(item, index) {
+  if (self.player.collidesWithEnemy(item)) {
+    self.player.collidedLive();
+    self.lives.splice(index, 1);
+  }
+});
+};
+
 Game.prototype.onOver = function (callback) {
   var self = this;
 
   self.onGameOverCallback = callback;
 };
 
-Game.prototype.gameOver = function (callback) {
+Game.prototype.gameOver = function () {
   var self = this;
 
   self.gameIsOver = true;
@@ -196,6 +227,5 @@ Game.prototype.gameOver = function (callback) {
 
 Game.prototype.destroy = function () {
   var self = this;
-  
   self.gameMain.remove();
 };
