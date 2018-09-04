@@ -30,7 +30,7 @@ Game.prototype.start = function () {
       <div class="canvas">
         <canvas></canvas>
       </div>
-      <div>
+        <div>
         <audio id='song' preload="auto" loop
         src="./audio/Stage 1 Castlevania (NES) Music.mp3" type="audio/ogg">
         </audio>
