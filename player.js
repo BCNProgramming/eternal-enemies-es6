@@ -1,70 +1,59 @@
 'user strict';
 
-function Player(canvas, lives) {
-  var self = this;
-  
-  self.canvas = canvas;
-  self.lives = lives;
-  self.direction = 0;
-  self.size = 50;
-  self.x =  10 + self.size / 2;
-  self.y = canvas.height / 2;
-  self.ctx = self.canvas.getContext('2d');
-  self.speed = 5;
-  
-}
-
-Player.prototype.collided = function () {
-  var self= this;
-  self.lives--;
-}
-
-Player.prototype.collidedLive = function () {
-  var self= this;
-  self.lives++;
-}
-
-Player.prototype.collidesWithEnemy = function (enemy) {
-  var self = this;
-
-  const collidesRight = self.x + self.size / 2 > enemy.x - enemy.size / 2;
-  const collidesLeft = self.x - self.size / 2 < enemy.x + enemy.size / 2;
-  const collidesTop = self.y - self.size / 2 < enemy.y + enemy.size / 2;
-  const collidesBottom = self.y + self.size / 2 > enemy.y - enemy.size / 2;
-
-  if (collidesLeft && collidesRight && collidesTop && collidesBottom) {
-    return true;
+class Player {
+  constructor(canvas, lives) {
+    this.canvas = canvas;
+    this.lives = lives;
+    this.direction = 0;
+    this.size = 50;
+    this.x =  10 + this.size / 2;
+    this.y = canvas.height / 2;
+    this.ctx = this.canvas.getContext('2d');
+    this.speed = 5;
   }
   
-  return false;
+  collided () {
+    this.lives--;
+  }
+  
+  collidedLive () {
+    this.lives++;
+  }
+  
+  collidesWithEnemy (enemy) {  
+    const collidesRight = this.x + this.size / 2 > enemy.x - enemy.size / 2;
+    const collidesLeft = this.x - this.size / 2 < enemy.x + enemy.size / 2;
+    const collidesTop = this.y - this.size / 2 < enemy.y + enemy.size / 2;
+    const collidesBottom = this.y + this.size / 2 > enemy.y - enemy.size / 2;
+  
+    if (collidesLeft && collidesRight && collidesTop && collidesBottom) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  
+  setDirection (direction) {  
+    this.direction = direction;
+  };
+  
+  update () {  
+    this.y = this.y + this.direction * this.speed;
+  
+    if (this.y < 0){
+      this.direction = 1;
+    }
+  
+    if (this.y > this.canvas.height){
+      this.direction = -1;
+    }
+  };
+  
+  draw () {  
+    this.ctx.fillStyle = 'blue';
+    const xPosition = this.x - this.size / 2;
+    const yPosition = this.y - this.size / 2;
+    this.ctx.fillRect(xPosition, yPosition , this.size, this.size);
+  };
 }
-
-
-Player.prototype.setDirection = function (direction) {
-  var self = this;
-
-  self.direction = direction;
-};
-
-Player.prototype.update = function () {
-  var self = this;
-
-  self.y = self.y + self.direction * self.speed;
-
-  if (self.y < 0){
-    self.direction = 1;
-  }
-
-  if (self.y > self.canvas.height){
-    self.direction = -1;
-  }
-};
-
-Player.prototype.draw = function () {
-  var self = this;
-
-  self.ctx.fillStyle = 'blue';
-  var xPosition = self.x - self.size / 2;
-  var yPosition = self.y - self.size / 2;
-  self.ctx.fillRect(xPosition, yPosition , self.size, self.size);
-};

@@ -1,24 +1,24 @@
 'use strict';
 
-var idName;
+let idName;
 
-function buildDom(html) {
+const  buildDom = html => {
   var div = document.createElement('div');
   div.innerHTML = html;
   return div.children[0];
 }
 
-function main() {
+const main = () => {
 
-  var splashMain;
-  var gameOverMain;
+  let splashMain;
+  let gameOverMain;
 
-  var game; // instance of Game
+  let game; // instance of Game
   
 
   // -- splash
 
- function buildSplash() {
+ const buildSplash = () => {
 
     splashMain = buildDom(`
       <main>
@@ -33,51 +33,51 @@ function main() {
     
     document.body.appendChild(splashMain);
 
-    var input = document.querySelector('input');
+    const input = document.querySelector('input');
 
     input.addEventListener('keyup', function (){
         idName = username(input);
     })
-    function username (item) {
+    const username = item => {
       return item.value;
     };
 
-    var button = splashMain.querySelector('button');
+    const button = splashMain.querySelector('button');
     button.addEventListener('click', startGame);
 
   }
 
-  function destoySplash() {
+  const destoySplash = () => {
     splashMain.remove();
   }
 
   
   // -- game
 
-  function startGame() {
+  const startGame = () => {
     destoySplash();
     destoyGameOver();
 
     game = new Game();
     game.start();
-    game.onOver(function () {
+    game.onOver(() => {
       gameOver(game.score, game.username);
     });
   }
 
-  function destroyGame() {
+  const destroyGame = () => {
     game.destroy();
   }
 
   // -- game over 
 
 
-  function gameOver(score, username) {
+  const gameOver = (score, username) => {
     destroyGame();
     buildGameOver(score, username);
   }
 
-  function buildGameOver(score, username) {
+  const buildGameOver = (score, username) =>  {
 
     gameOverMain = buildDom(`
       <main>
@@ -87,16 +87,16 @@ function main() {
       </main>
     `);
 
-    var button = gameOverMain.querySelector('button');
+    const button = gameOverMain.querySelector('button');
     button.addEventListener('click', startGame);    
     
-    var span = gameOverMain.querySelector('span');
+    const span = gameOverMain.querySelector('span');
     span.innerText = username+' your score is: ' + score + ' !!!!';
 
     document.body.appendChild(gameOverMain);
   }
 
-  function destoyGameOver() {
+  const destoyGameOver = () => {
     if (gameOverMain) {
       gameOverMain.remove();
     }

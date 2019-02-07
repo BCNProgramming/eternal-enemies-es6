@@ -1,231 +1,222 @@
 'use strict';
 
-function Game() {
-  var self = this;
+class Game{
+  constructor() {
+    this.gameIsOver = false;
+    this.score = 0;
+    this.pause = false;
+    this.username = idName;
+  }
 
-  self.gameIsOver = false;
-  self.score = 0;
-  self.pause = false;
-  self.username = idName;
-}
-
-Game.prototype.start = function () {
-  var self = this;
-
-  self.gameMain = buildDom(`
-    <main class="game container">
-      <header>
-        <div class="lives">
-          <span class="label">Lives:</span>
-          <span class="value"></span>
+  start () {
+  
+    this.gameMain = buildDom(`
+      <main class="game container">
+        <header>
+          <div class="lives">
+            <span class="label">Lives:</span>
+            <span class="value"></span>
+          </div>
+          <div>
+            <p></p>
+          </div>
+          <div class="score">
+            <span class="label">Score:</span>
+            <span class="value"></span>
+          </div>
+        </header>
+        <div class="canvas">
+          <canvas></canvas>
         </div>
-        <div>
-          <p></p>
+          <div>
+          <audio id='song' preload="auto" loop
+          src="./audio/Stage 1 Castlevania (NES) Music.mp3" type="audio/ogg">
+          </audio>
+          <div>
+            <button onclick="document.getElementById('song').play()">Play</button>
+            <button onclick="document.getElementById('song').pause()">Pause</button>
+          </div>
         </div>
-        <div class="score">
-          <span class="label">Score:</span>
-          <span class="value"></span>
-        </div>
-      </header>
-      <div class="canvas">
-        <canvas></canvas>
-      </div>
-        <div>
-        <audio id='song' preload="auto" loop
-        src="./audio/Stage 1 Castlevania (NES) Music.mp3" type="audio/ogg">
-        </audio>
-        <div>
-          <button onclick="document.getElementById('song').play()">Play</button>
-          <button onclick="document.getElementById('song').pause()">Pause</button>
-        </div>
-      </div>
-      </main>
-  `);
+        </main>
+    `);
+  
+    this.gameMain.querySelector('p').innerText = this.username;
+    this.canvasParentElement = this.gameMain.querySelector('.canvas');
+    this.canvasElement = this.gameMain.querySelector('canvas');
+    this.music = this.gameMain.querySelector('audio');
+    this.music.autoplay = true;
+  
+    this.livesElement = this.gameMain.querySelector('.lives .value');
+    this.scoreElement = this.gameMain.querySelector('.score .value');
+  
+    document.body.appendChild(this.gameMain);
+  
+    this.width = this.canvasParentElement.offsetWidth;
+    this.height = this.canvasParentElement.offsetHeight;
+  
+    this.canvasElement.setAttribute('width', this.width);
+    this.canvasElement.setAttribute('height', this.height);
+  
+    this.player = new Player(this.canvasElement, 5);
+  
+    this.handleHeyDown = (event) => {
+      if (event.key === 'ArrowUp'){
+        this.player.setDirection(-1);
+      } else if (event.key === 'ArrowDown'){
+        this.player.setDirection(1);
+      }
+    };
+  
+    document.body.addEventListener('keydown', this.handleHeyDown)
 
-  self.gameMain.querySelector('p').innerText = self.username;
-  self.canvasParentElement = self.gameMain.querySelector('.canvas');
-  self.canvasElement = self.gameMain.querySelector('canvas');
-  self.music = self.gameMain.querySelector('audio');
-  self.music.autoplay = true;
-
-  self.livesElement = self.gameMain.querySelector('.lives .value');
-  self.scoreElement = self.gameMain.querySelector('.score .value');
-
-  document.body.appendChild(self.gameMain);
-
-  self.width = self.canvasParentElement.offsetWidth;
-  self.height = self.canvasParentElement.offsetHeight;
-
-  self.canvasElement.setAttribute('width', self.width);
-  self.canvasElement.setAttribute('height', self.height);
-
-
-  self.player = new Player(self.canvasElement, 5);
-
-
-  self.handleHeyDown = function (event) {
-    if (event.key === 'ArrowUp'){
-      self.player.setDirection(-1);
-    } else if (event.key === 'ArrowDown'){
-      self.player.setDirection(1);
-    }
+    this.enemies = [];
+    this.points = [];
+    this.lives = [];
+  
+    this.startLoop();
+  
+    this.gameIsOver = false;
   };
 
-  document.body.addEventListener('keydown', self.handleHeyDown)
+  updateCanvas() {
+    this.player.update();
+  
+      this.enemies.forEach(item => {
+        item.update();
+      });
+  
+      this.points.forEach(item => {
+        item.update();
+      });
+  
+      this.lives.forEach(item => {
+        item.update();
+      });
+  }
 
 
-
-  self.enemies = [];
-  self.points = [];
-  self.lives = [];
-
-  self.startLoop();
-
-  self.gameIsOver = false;
-
-};
-
-
-Game.prototype.startLoop = function () {
-  self = this;
-  var ctx = self.canvasElement.getContext('2d');
-
-  document.body.addEventListener('keyup', function(){
-    if (event.key === ' ') {
-      self.pause = !self.pause;
-      if (!self.pause) {
-          loop();
-          self.music.play();
-      }
-      if (self.pause) {
-        self.music.pause();
-      };
-    }
-  });
-
-  function loop(){
-
-    if (Math.random() > 0.95){
-      var y = self.canvasElement.height * Math.random();
-      self.enemies.push(new Enemy(self.canvasElement, y , 5));
-    }
-
-    if (Math.random() > 0.99){
-      var y = self.canvasElement.height * Math.random();
-      self.points.push(new Points(self.canvasElement, y , 5));
-    }
-
-    if (Math.random() > 0.995){
-      var y = self.canvasElement.height * Math.random();
-      self.lives.push(new Live(self.canvasElement, y , 8));
-    }
-
-
-    // UPDATE
-
-
-    self.player.update();
-
-    self.enemies.forEach(function(item) {
-      item.update();
-    });
-
-    self.points.forEach(function(item) {
-      item.update();
-    });
-
-    self.lives.forEach(function(item) {
-      item.update();
-    });
-
-    self.enemies = self.enemies.filter(function (item){
+  checkCollisions() {
+    this.enemies = this.enemies.filter(item => {
       return item.isInScreen();
     });
 
-    self.checkIfEnemiesCollidePlayer();
-    self.checkIfPointsCollidePlayer();
-    self.checkIfLivesCollidePlayer();
-
-    self.livesElement.innerText = self.player.lives
-    self.scoreElement.innerText = self.score;
-
-    ctx.clearRect(0, 0, self.width, self.height) 
-
-
-    // DRAW
-
-
-    self.enemies.forEach(function(item) {
-      item.draw()
-    });
-
-    self.points.forEach(function(item) {
-      item.draw()
-    });
-
-    self.lives.forEach(function(item) {
-      item.draw()
-    });
-
-    self.player.draw();
-    
-    if(!self.gameIsOver && !self.pause) {
-      window.requestAnimationFrame(loop);
-    }
-  };
-  window.requestAnimationFrame(loop);
-};
-
-
-
-Game.prototype.checkIfEnemiesCollidePlayer = function () {
-  var self = this;
-
-  self.enemies.forEach( function(item, index) {
-    if (self.player.collidesWithEnemy(item)) {
-      self.player.collided();
-      self.enemies.splice(index, 1);
-      if (!self.player.lives) {
-        self.gameOver();
-      }
-    }
-  });
-};
-
-Game.prototype.checkIfPointsCollidePlayer = function () {
-    var self = this;
-    self.points.forEach( function(item, index) {
-    if (self.player.collidesWithEnemy(item)) {
-      self.score ++;
-      self.points.splice(index, 1);
-    }
-  });
-};
-
-Game.prototype.checkIfLivesCollidePlayer = function () {
-  var self = this;
-  self.lives.forEach( function(item, index) {
-  if (self.player.collidesWithEnemy(item)) {
-    self.player.collidedLive();
-    self.lives.splice(index, 1);
+    this.checkIfEnemiesCollidePlayer();
+    this.checkIfPointsCollidePlayer();
+    this.checkIfLivesCollidePlayer();
   }
-});
+
+  drawCanvas() {
+    this.enemies.forEach(item => {
+      item.draw()
+    });
+
+    this.points.forEach(item => {
+      item.draw()
+    });
+
+    this.lives.forEach(item => {
+      item.draw()
+    });
+
+    this.player.draw();
+  }
+  
+  startLoop () {
+    const ctx = this.canvasElement.getContext('2d');
+  
+    document.body.addEventListener('keyup', () => {
+      if (event.key === ' ') {
+        this.pause = !this.pause;
+        if (!this.pause) {
+            loop();
+            this.music.play();
+        }
+        if (this.pause) {
+          this.music.pause();
+        };
+      }
+    });
+  
+     const loop = () => {
+  
+      if (Math.random() > 0.95){
+        var y = this.canvasElement.height * Math.random();
+        this.enemies.push(new Enemy(this.canvasElement, y , 5));
+      }
+  
+      if (Math.random() > 0.99){
+        var y = this.canvasElement.height * Math.random();
+        this.points.push(new Points(this.canvasElement, y , 5));
+      }
+  
+      if (Math.random() > 0.995){
+        var y = this.canvasElement.height * Math.random();
+        this.lives.push(new Live(this.canvasElement, y , 8));
+      }
+  
+      this.updateCanvas();
+
+      this.checkCollisions();
+  
+      this.livesElement.innerText = this.player.lives
+      this.scoreElement.innerText = this.score;
+  
+      ctx.clearRect(0, 0, this.width, this.height) 
+  
+      this.drawCanvas();
+      
+      if(!this.gameIsOver && !this.pause) {
+        window.requestAnimationFrame(loop);
+      }
+    };
+    window.requestAnimationFrame(loop);
+  };
+
+  checkIfEnemiesCollidePlayer() {
+    this.enemies.forEach( (item, index) => {
+      if (this.player.collidesWithEnemy(item)) {
+        this.player.collided();
+        this.enemies.splice(index, 1);
+        if (!this.player.lives) {
+          this.gameOver();
+        }
+      }
+    });
+  };
+
+  checkIfPointsCollidePlayer() {
+    this.points.forEach((item, index) => {
+      if (this.player.collidesWithEnemy(item)) {
+        this.score ++;
+        this.points.splice(index, 1);
+      }
+    });
+  };
+
+  checkIfLivesCollidePlayer() {
+    this.lives.forEach( (item, index) => {
+      if (this.player.collidesWithEnemy(item)) {
+        this.player.collidedLive();
+        this.lives.splice(index, 1);
+      }
+    });
+  };
+
+  onOver(callback) {
+    this.onGameOverCallback = callback;
+  };
+  
+  gameOver() {
+    this.gameIsOver = true;
+    this.onGameOverCallback();
+  };
+  
+  destroy() {
+    this.gameMain.remove();
+  };
 };
 
-Game.prototype.onOver = function (callback) {
-  var self = this;
 
-  self.onGameOverCallback = callback;
-};
 
-Game.prototype.gameOver = function () {
-  var self = this;
 
-  self.gameIsOver = true;
-  self.onGameOverCallback();
-};
 
-Game.prototype.destroy = function () {
-  var self = this;
-  self.gameMain.remove();
-};
